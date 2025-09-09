@@ -34,9 +34,7 @@ headline = st.sidebar.text_input("Enter News Headline:", f"{stock_choice} latest
 # Additional parameters
 period = st.sidebar.selectbox("Select data period:", ["1mo", "3mo", "6mo", "1y"])
 interval = st.sidebar.selectbox("Select interval:", ["1d", "1h", "15m"])
-SMA_window = st.sidebar.number_input("SMA window:", min_value=5, max_value=100, value=20)
-EMA_window = st.sidebar.number_input("EMA window:", min_value=5, max_value=100, value=20)
-RSI_window = st.sidebar.number_input("RSI window:", min_value=5, max_value=50, value=14)
+
 
 # ------------------ Run Analysis ------------------
 if st.sidebar.button("Run Analysis"):
