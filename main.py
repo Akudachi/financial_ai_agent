@@ -53,6 +53,7 @@ if st.sidebar.button("Run Analysis"):
     else:
         # Add indicators
         df = add_indicators(df)
+
         # Flatten MultiIndex columns if present
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in df.columns]
@@ -68,7 +69,7 @@ if st.sidebar.button("Run Analysis"):
         macd_col = next((col for col in df.columns if 'MACD' in col and 'Signal' not in col), None)
         macd_signal_col = next((col for col in df.columns if 'MACD_Signal' in col or 'Signal' in col), None)
 
-        # Latest stock data
+        # ------------------ Latest Stock Data ------------------
         st.subheader("Latest Stock Data")
         st.dataframe(df.tail())
 
@@ -78,6 +79,9 @@ if st.sidebar.button("Run Analysis"):
             if price_cols:
                 st.subheader("Price Chart (Close + SMA + EMA)")
                 st.line_chart(df[price_cols])
+            else:
+                st.info("Price data not available for line chart.")
+
         elif chart_type == "Candlestick Chart":
             if open_col and high_col and low_col and close_col:
                 st.subheader(f"{stock_choice} Candlestick Chart")
@@ -94,6 +98,7 @@ if st.sidebar.button("Run Analysis"):
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("Cannot create candlestick chart: missing OHLC data.")
+
         elif chart_type == "OHLC Bar Chart":
             if open_col and high_col and low_col and close_col:
                 st.subheader(f"{stock_choice} OHLC Bar Chart")
@@ -110,14 +115,14 @@ if st.sidebar.button("Run Analysis"):
             else:
                 st.info("Cannot create OHLC chart: missing OHLC data.")
 
-        # RSI chart
+        # ------------------ RSI Chart ------------------
         if rsi_col and rsi_col in df.columns:
             st.subheader("RSI (14-day)")
             st.line_chart(df[rsi_col])
         else:
             st.info("RSI column not available.")
 
-        # MACD chart
+        # ------------------ MACD Chart ------------------
         macd_cols = [col for col in [macd_col, macd_signal_col] if col and col in df.columns]
         if macd_cols:
             st.subheader("MACD")
@@ -125,7 +130,7 @@ if st.sidebar.button("Run Analysis"):
         else:
             st.info("MACD columns not available.")
 
-        # Sentiment Analysis
+        # ------------------ Sentiment Analysis ------------------
         st.subheader("Sentiment Analysis")
         if headline:
             result = analyze_sentiment(headline)
