@@ -24,7 +24,7 @@ if st.sidebar.button("Run Analysis"):
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in df.columns]
 
-    # Dynamically find columns
+    # Dynamically detect columns
     close_col = next((col for col in df.columns if 'Close' in col), None)
     sma_col = next((col for col in df.columns if 'SMA' in col), None)
     ema_col = next((col for col in df.columns if 'EMA' in col), None)
@@ -36,28 +36,36 @@ if st.sidebar.button("Run Analysis"):
     st.subheader("Latest Stock Data")
     st.dataframe(df.tail())
 
-    # Plot Close + SMA + EMA
-    plot_cols = [col for col in [close_col, sma_col, ema_col] if col in df.columns]
+    # Plot Close + SMA + EMA safely
+    plot_cols = [col for col in [close_col, sma_col, ema_col] if col and col in df.columns]
     if plot_cols:
         st.subheader("Price Chart (Close + SMA + EMA)")
         st.line_chart(df[plot_cols])
     else:
         st.warning("No price columns available for plotting.")
 
-    # Plot RSI
+    # Plot RSI safely
     if rsi_col and rsi_col in df.columns:
         st.subheader("RSI (14-day)")
         st.line_chart(df[rsi_col])
+    else:
+        st.info("RSI column not available.")
 
-    # Plot MACD + Signal
-    if macd_col and macd_signal_col and macd_col in df.columns and macd_signal_col in df.columns:
+    # Plot MACD safely
+    macd_cols = [col for col in [macd_col, macd_signal_col] if col and col in df.columns]
+    if macd_cols:
         st.subheader("MACD")
-        st.line_chart(df[[macd_col, macd_signal_col]])
+        st.line_chart(df[macd_cols])
+    else:
+        st.info("MACD columns not available.")
 
-    # Sentiment Analysis
+    # Sentiment Analysis (handle Hugging Face pipeline output)
     st.subheader("Sentiment Analysis")
     if headline:
         result = analyze_sentiment(headline)
-        label = result['label']
-        score = result['score']
-        st.write(f"**Sentiment:** {label}  |  **Confidence:** {score:.2f}")
+        if isinstance(result, list) and len(result) > 0:
+            label = result[0].get('label', 'N/A')
+            score = result[0].get('score', 0)
+            st.write(f"**Sentiment:** {label}  |  **Confidence:** {score:.2f}")
+        else:
+            st.warning("Sentiment analysis failed or returned unexpected format.")
