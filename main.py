@@ -1,71 +1,54 @@
-<<<<<<< HEAD
 import streamlit as st
+import pandas as pd
 from data_fetcher import get_stock_data
 from indicators import add_indicators
 from sentiment import analyze_sentiment
-from model import prepare_dataset, train_model
-from utils import plot_data
 
+st.set_page_config(page_title="📈 Financial AI Agent", layout="wide")
 st.title("📈 Financial AI Agent")
 
-ticker = st.text_input("Enter Stock Ticker (e.g. AAPL, TSLA, MSFT):", "AAPL")
+# Sidebar for user input
+st.sidebar.header("Stock Input & Sentiment")
+ticker = st.sidebar.text_input("Enter Stock Ticker (e.g. AAPL, TSLA, MSFT):", "AAPL")
+headline = st.sidebar.text_input("Enter News Headline:", "Apple launches new iPhone with strong sales")
 
-if st.button("Run Analysis"):
-    st.write(f"Fetching data for {ticker}...")
+# Run Analysis button
+if st.sidebar.button("Run Analysis"):
+
+    # Fetch and prepare stock data
+    st.subheader(f"Fetching data for {ticker}...")
     df = get_stock_data(ticker)
     df = add_indicators(df)
-    
-    st.write("### Stock Data", df.tail())
 
-    st.write("### Plot")
-    st.line_chart(df[['Close','SMA_20']])
+    # Flatten MultiIndex columns if needed
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in df.columns]
 
-    # Machine Learning
-    X, y = prepare_dataset(df)
-    model = train_model(X, y)
-    pred = model.predict([X.iloc[-1]])[0]
-    st.write("### AI Prediction")
-    st.success("📊 Next day trend: UP ⬆️" if pred==1 else "📉 Next day trend: DOWN ⬇️")
+    # Dynamically find Close column
+    close_col = [col for col in df.columns if 'Close' in col][0]
+    sma_col = 'SMA_20'
+    ema_col = 'EMA_20'
 
-    # Sentiment Example
-    st.write("### Sentiment Analysis")
-    text = st.text_input("Enter news headline:", "Apple launches new iPhone with strong sales")
-    if text:
-        label, score = analyze_sentiment(text)
-        st.write(f"Sentiment: {label} (Confidence: {score:.2f})")
-=======
-import streamlit as st
-from data_fetcher import get_stock_data
-from indicators import add_indicators
-from sentiment import analyze_sentiment
-from model import prepare_dataset, train_model
-from utils import plot_data
+    # Show latest stock data
+    st.subheader("Latest Stock Data")
+    st.dataframe(df.tail())
 
-st.title("📈 Financial AI Agent")
+    # Plot Close + SMA + EMA
+    st.subheader("Price Chart (Close + SMA + EMA)")
+    st.line_chart(df[[close_col, sma_col, ema_col]])
 
-ticker = st.text_input("Enter Stock Ticker (e.g. AAPL, TSLA, MSFT):", "AAPL")
+    # Plot RSI
+    st.subheader("RSI (14-day)")
+    st.line_chart(df['RSI_14'])
 
-if st.button("Run Analysis"):
-    st.write(f"Fetching data for {ticker}...")
-    df = get_stock_data(ticker)
-    df = add_indicators(df)
-    
-    st.write("### Stock Data", df.tail())
+    # Plot MACD + Signal
+    st.subheader("MACD")
+    st.line_chart(df[['MACD', 'MACD_Signal']])
 
-    st.write("### Plot")
-    st.line_chart(df[['Close','SMA_20']])
-
-    # Machine Learning
-    X, y = prepare_dataset(df)
-    model = train_model(X, y)
-    pred = model.predict([X.iloc[-1]])[0]
-    st.write("### AI Prediction")
-    st.success("📊 Next day trend: UP ⬆️" if pred==1 else "📉 Next day trend: DOWN ⬇️")
-
-    # Sentiment Example
-    st.write("### Sentiment Analysis")
-    text = st.text_input("Enter news headline:", "Apple launches new iPhone with strong sales")
-    if text:
-        label, score = analyze_sentiment(text)
-        st.write(f"Sentiment: {label} (Confidence: {score:.2f})")
->>>>>>> 647a1a0ecdbb67439beb8685a67f4906de223262
+    # Sentiment Analysis
+    st.subheader("Sentiment Analysis")
+    if headline:
+        result = analyze_sentiment(headline)
+        label = result['label']
+        score = result['score']
+        st.write(f"**Sentiment:** {label}  |  **Confidence:** {score:.2f}")

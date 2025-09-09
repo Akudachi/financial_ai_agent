@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import matplotlib.pyplot as plt
 
 def plot_data(df, ticker="Stock"):
@@ -8,7 +8,6 @@ def plot_data(df, ticker="Stock"):
     plt.legend()
     plt.title(f"{ticker} Price with Indicators")
     plt.show()
-=======
 import matplotlib.pyplot as plt
 
 def plot_data(df, ticker="Stock"):
@@ -18,4 +17,4 @@ def plot_data(df, ticker="Stock"):
     plt.legend()
     plt.title(f"{ticker} Price with Indicators")
     plt.show()
->>>>>>> 647a1a0ecdbb67439beb8685a67f4906de223262
+
