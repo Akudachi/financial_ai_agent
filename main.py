@@ -24,13 +24,18 @@ if st.sidebar.button("Run Analysis"):
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in df.columns]
 
+    # Dynamically find Close column
+    close_col = [col for col in df.columns if 'Close' in col][0]
+    sma_col = 'SMA_20'
+    ema_col = 'EMA_20'
+
     # Show latest stock data
     st.subheader("Latest Stock Data")
     st.dataframe(df.tail())
 
     # Plot Close + SMA + EMA
     st.subheader("Price Chart (Close + SMA + EMA)")
-    st.line_chart(df[['Close', 'SMA_20', 'EMA_20']])
+    st.line_chart(df[[close_col, sma_col, ema_col]])
 
     # Plot RSI
     st.subheader("RSI (14-day)")
