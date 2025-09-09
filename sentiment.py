@@ -1,17 +1,18 @@
-
 from transformers import pipeline
 
-sentiment_model = pipeline("sentiment-analysis")
+# Initialize once
+sentiment_pipeline = pipeline("sentiment-analysis")
 
 def analyze_sentiment(text):
-    result = sentiment_model(text)[0]
-    return result['label'], result['score']
-
-from transformers import pipeline
-
-sentiment_model = pipeline("sentiment-analysis")
-
-def analyze_sentiment(text):
-    result = sentiment_model(text)[0]
-    return result['label'], result['score']
-
+    """
+    Returns a list of dicts: [{'label': 'POSITIVE', 'score': 0.987}]
+    """
+    if not text or text.strip() == "":
+        return [{'label': 'NEUTRAL', 'score': 0.0}]
+    
+    try:
+        result = sentiment_pipeline(text)
+        return result
+    except Exception as e:
+        print(f"Sentiment error: {e}")
+        return [{'label': 'ERROR', 'score': 0.0}]
