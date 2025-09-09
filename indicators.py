@@ -1,29 +1,23 @@
-
 import ta
-import pandas as pd
 
-def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
-    # Ensure we only take the "Close" column as a 1D Series
-    if isinstance(df.columns, pd.MultiIndex):
-        close = df['Close'].iloc[:, 0]  # take first level if multi-index
-    else:
-        close = df['Close']
+def add_indicators(df):
+    # Detect Close column dynamically
+    close_col = next((col for col in df.columns if 'Close' in col), None)
+    if close_col is None:
+        raise ValueError("No Close column found in DataFrame")
 
+    # Simple Moving Average (20)
+    df['SMA_20'] = ta.trend.sma_indicator(df[close_col], window=20, fillna=True)
 
+    # Exponential Moving Average (20)
+    df['EMA_20'] = ta.trend.ema_indicator(df[close_col], window=20, fillna=True)
 
-import ta
-import pandas as pd
+    # Relative Strength Index (14)
+    df['RSI_14'] = ta.momentum.rsi(df[close_col], window=14, fillna=True)
 
-def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
-    # Ensure we only take the "Close" column as a 1D Series
-    if isinstance(df.columns, pd.MultiIndex):
-        close = df['Close'].iloc[:, 0]  # take first level if multi-index
-    else:
-        close = df['Close']
+    # MACD
+    macd = ta.trend.MACD(df[close_col])
+    df['MACD'] = macd.macd()
+    df['MACD_Signal'] = macd.macd_signal()
 
-
-    # Add 20-day Simple Moving Average
-    df['SMA_20'] = ta.trend.sma_indicator(close=close, window=20)
-
-    # You can add more indicators here if needed
     return df
