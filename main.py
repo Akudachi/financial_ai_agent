@@ -46,8 +46,7 @@ if st.sidebar.button("Run Analysis"):
         st.error("Failed to fetch data. Please check the ticker symbol.")
     else:
         # Add indicators
-        df = add_indicators(df, sma_window=SMA_window, ema_window=EMA_window, rsi_window=RSI_window)
-
+        df = add_indicators(df)
         # Flatten MultiIndex columns
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in df.columns]
