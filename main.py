@@ -20,7 +20,7 @@ if st.sidebar.button("Run Analysis"):
     df = get_stock_data(ticker)
     df = add_indicators(df)
 
-    # Flatten MultiIndex columns if needed
+    # Flatten MultiIndex columns
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in df.columns]
 
@@ -52,4 +52,20 @@ if st.sidebar.button("Run Analysis"):
         st.info("RSI column not available.")
 
     # Plot MACD + Signal
-    macd_cols = [col for col in]()_
+    macd_cols = [col for col in [macd_col, macd_signal_col] if col and col in df.columns]  # FIXED
+    if macd_cols:
+        st.subheader("MACD")
+        st.line_chart(df[macd_cols])
+    else:
+        st.info("MACD columns not available.")
+
+    # Sentiment Analysis
+    st.subheader("Sentiment Analysis")
+    if headline:
+        result = analyze_sentiment(headline)
+        if isinstance(result, list) and len(result) > 0:
+            label = result[0].get('label', 'N/A')
+            score = result[0].get('score', 0)
+            st.write(f"**Sentiment:** {label}  |  **Confidence:** {score:.2f}")
+        else:
+            st.warning("Sentiment analysis failed or returned unexpected format.")
