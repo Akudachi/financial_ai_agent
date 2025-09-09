@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import streamlit as st
 from data_fetcher import get_stock_data
 from indicators import add_indicators
@@ -33,7 +33,7 @@ if st.button("Run Analysis"):
     if text:
         label, score = analyze_sentiment(text)
         st.write(f"Sentiment: {label} (Confidence: {score:.2f})")
-=======
+
 import streamlit as st
 from data_fetcher import get_stock_data
 from indicators import add_indicators
@@ -68,4 +68,4 @@ if st.button("Run Analysis"):
     if text:
         label, score = analyze_sentiment(text)
         st.write(f"Sentiment: {label} (Confidence: {score:.2f})")
->>>>>>> 647a1a0ecdbb67439beb8685a67f4906de223262
+
