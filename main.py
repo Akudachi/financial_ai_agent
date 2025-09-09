@@ -24,26 +24,35 @@ if st.sidebar.button("Run Analysis"):
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in df.columns]
 
-    # Dynamically find Close column
-    close_col = [col for col in df.columns if 'Close' in col][0]
-    sma_col = 'SMA_20'
-    ema_col = 'EMA_20'
+    # Dynamically find columns
+    close_col = next((col for col in df.columns if 'Close' in col), None)
+    sma_col = next((col for col in df.columns if 'SMA' in col), None)
+    ema_col = next((col for col in df.columns if 'EMA' in col), None)
+    rsi_col = next((col for col in df.columns if 'RSI' in col), None)
+    macd_col = next((col for col in df.columns if 'MACD' in col and 'Signal' not in col), None)
+    macd_signal_col = next((col for col in df.columns if 'MACD_Signal' in col or 'Signal' in col), None)
 
     # Show latest stock data
     st.subheader("Latest Stock Data")
     st.dataframe(df.tail())
 
     # Plot Close + SMA + EMA
-    st.subheader("Price Chart (Close + SMA + EMA)")
-    st.line_chart(df[[close_col, sma_col, ema_col]])
+    plot_cols = [col for col in [close_col, sma_col, ema_col] if col in df.columns]
+    if plot_cols:
+        st.subheader("Price Chart (Close + SMA + EMA)")
+        st.line_chart(df[plot_cols])
+    else:
+        st.warning("No price columns available for plotting.")
 
     # Plot RSI
-    st.subheader("RSI (14-day)")
-    st.line_chart(df['RSI_14'])
+    if rsi_col and rsi_col in df.columns:
+        st.subheader("RSI (14-day)")
+        st.line_chart(df[rsi_col])
 
     # Plot MACD + Signal
-    st.subheader("MACD")
-    st.line_chart(df[['MACD', 'MACD_Signal']])
+    if macd_col and macd_signal_col and macd_col in df.columns and macd_signal_col in df.columns:
+        st.subheader("MACD")
+        st.line_chart(df[[macd_col, macd_signal_col]])
 
     # Sentiment Analysis
     st.subheader("Sentiment Analysis")
